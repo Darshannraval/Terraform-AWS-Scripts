@@ -67,7 +67,7 @@ resource "aws_subnet" "Public_2c"{
   }
 }
 
-/*resource "aws_internet_gateway" "gw" {
+resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.vpc.id}"
 
   tags = {
@@ -86,7 +86,7 @@ resource "aws_route_table" "r" {
  tags = {
     Name = "myRT"
   }
-}*/
+}
 
 
 
