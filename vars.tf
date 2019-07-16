@@ -2,7 +2,7 @@ variable "aws_access_key" {}
 variable "aws_secret_key" {}
 
 variable "region" {
-  default = "us-east-2"
+  default = "ap-south-1"
 }
 
 variable "vpc_cidr"{
@@ -34,3 +34,10 @@ variable "subnet_pub_2c"{
  default = "10.1.6.0/24"
  description = "CIDR for the public Subnet in 2c AZ"
 }
+
+variable "destinationCIDRblock" {
+        default = "0.0.0.0/0"
+}
+
+
+

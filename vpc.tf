@@ -4,7 +4,6 @@ provider "aws" {
     region = "${var.region}"
 }
 
-
 resource "aws_vpc" "myVPC" {
   cidr_block       = "${var.vpc_cidr}"
   instance_tenancy = "default"
@@ -68,25 +67,84 @@ resource "aws_subnet" "Public_2c"{
 }
 
 resource "aws_internet_gateway" "gw" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = "${aws_vpc.myVPC.id}"
 
   tags = {
-    Name = "myIGW"
+    Name = "devopsIGW"
   }
 }
 
+resource "aws_eip" "nat" {
+  vpc      = true
+  depends_on = ["aws_internet_gateway.gw"]
+}
+
+resource "aws_nat_gateway" "privatenat" {
+  allocation_id = "${aws_eip.nat.id}"
+  subnet_id     = "${aws_subnet.Public_2a.id}"
+
+  tags = {
+    Name = "devopsNAT"
+  }
+}
+
+
 resource "aws_route_table" "r" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = "${aws_vpc.myVPC.id}"
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = "${var.destinationCIDRblock}"
     gateway_id = "${aws_internet_gateway.gw.id}"
   }
 
  tags = {
-    Name = "myRT"
+    Name = "devopspublicRT"
   }
 }
+
+resource "aws_route_table" "rnat" {
+  vpc_id = "${aws_vpc.myVPC.id}"
+
+  route {
+    cidr_block = "${var.destinationCIDRblock}"
+    gateway_id = "${aws_nat_gateway.privatenat.id}"
+  }
+
+ tags = {
+    Name = "devopsprivateRT"
+  }
+}
+
+resource "aws_route_table_association" "assoc-pub2a" {
+   subnet_id      = "${aws_subnet.Public_2a.id}"
+   route_table_id = "${aws_route_table.r.id}"
+}
+resource "aws_route_table_association" "assoc-pub2b" {
+   subnet_id      = "${aws_subnet.Public_2b.id}"
+   route_table_id = "${aws_route_table.r.id}"
+}
+
+resource "aws_route_table_association" "assoc-pub2c" {
+   subnet_id      = "${aws_subnet.Public_2c.id}"
+   route_table_id = "${aws_route_table.r.id}"
+}
+
+resource "aws_route_table_association" "assoc-pri2a" {
+   
+   subnet_id      = "${aws_subnet.Private_2a.id}"
+   route_table_id = "${aws_route_table.rnat.id}"
+}
+resource "aws_route_table_association" "assoc-pri2b" {
+  
+   subnet_id      = "${aws_subnet.Private_2b.id}"
+   route_table_id = "${aws_route_table.rnat.id}"
+}
+resource "aws_route_table_association" "assoc-pri2c" {
+   
+   subnet_id      = "${aws_subnet.Private_2c.id}"
+   route_table_id = "${aws_route_table.rnat.id}"
+}
+
 
 
 
