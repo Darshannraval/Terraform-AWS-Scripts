@@ -102,18 +102,19 @@ resource "aws_route_table" "r" {
   }
 }
 
-resource "aws_route_table" "rnat" {
-  vpc_id = "${aws_vpc.myVPC.id}"
+resource "aws_default_route_table" "rpri" {
+  default_route_table_id = "${aws_vpc.myVPC.default_route_table_id}"
 
   route {
     cidr_block = "${var.destinationCIDRblock}"
     gateway_id = "${aws_nat_gateway.privatenat.id}"
   }
 
- tags = {
+  tags = {
     Name = "devopsprivateRT"
   }
 }
+
 
 resource "aws_route_table_association" "assoc-pub2a" {
    subnet_id      = "${aws_subnet.Public_2a.id}"
@@ -132,17 +133,20 @@ resource "aws_route_table_association" "assoc-pub2c" {
 resource "aws_route_table_association" "assoc-pri2a" {
    
    subnet_id      = "${aws_subnet.Private_2a.id}"
-   route_table_id = "${aws_route_table.rnat.id}"
+   route_table_id = "${aws_default_route_table.rpri.id}"
+   
 }
 resource "aws_route_table_association" "assoc-pri2b" {
-  
+   
    subnet_id      = "${aws_subnet.Private_2b.id}"
-   route_table_id = "${aws_route_table.rnat.id}"
+   route_table_id = "${aws_default_route_table.rpri.id}"
+   
 }
 resource "aws_route_table_association" "assoc-pri2c" {
    
    subnet_id      = "${aws_subnet.Private_2c.id}"
-   route_table_id = "${aws_route_table.rnat.id}"
+   route_table_id = "${aws_default_route_table.rpri.id}"
+  
 }
 
 
